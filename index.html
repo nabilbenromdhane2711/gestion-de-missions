@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des missions</title>
     <style>
+
+        #toggleFormBtn {
+    padding: 8px 15px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+#toggleFormBtn:hover {
+    background-color: #0b7dda;
+}
+
+.form-container.hidden {
+    display: none;
+}
+        
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -165,7 +184,7 @@
 </head>
 <body>
     <h1>Gestion des missions</h1>
-    
+    <button id="toggleFormBtn">Masquer le formulaire</button>
     <div class="form-container">
         <div class="form-group">
             <label for="userName">Nom du collaborateur :</label>
@@ -231,7 +250,19 @@
             <!-- Les enregistrements seront ajoutés ici dynamiquement -->
         </div>
     </div>
+// Fonctionnalité de bascule du formulaire
+const toggleFormBtn = document.getElementById('toggleFormBtn');
+const formContainer = document.querySelector('.form-container');
 
+toggleFormBtn.addEventListener('click', function() {
+    formContainer.classList.toggle('hidden');
+    
+    if (formContainer.classList.contains('hidden')) {
+        toggleFormBtn.textContent = 'Afficher le formulaire';
+    } else {
+        toggleFormBtn.textContent = 'Masquer le formulaire';
+    }
+});
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const addButton = document.getElementById('addButton');
