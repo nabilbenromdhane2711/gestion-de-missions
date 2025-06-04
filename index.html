@@ -54,6 +54,13 @@
         .archive-btn:hover {
             background-color: #d32f2f;
         }
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #0b7dda;
+        }
         .records-container {
             margin-bottom: 30px;
         }
@@ -161,6 +168,13 @@
             font-weight: bold;
             color: #333;
         }
+        .edit-description {
+            width: 100%;
+            min-height: 60px;
+            padding: 8px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -241,6 +255,7 @@
             const missionTypeSelect = document.getElementById('missionType');
             const missionDetailSelect = document.getElementById('missionDetail');
             let records = [];
+            let currentlyEditingId = null;
             
             // Liste des collaborateurs (noms et prénoms séparés par un espace)
             const users = [
@@ -348,7 +363,6 @@
                 ],
                 security: [
                     "Signature électronique",
-                    "Alerte SOPHOS",
                     "Sauvegarde/Backup",
                     "Mise à jour des pare-feu",
                     "Gestion des identifiants"
@@ -577,12 +591,17 @@
                         interventionText = 'Les deux';
                     }
                     
+                    const isEditing = currentlyEditingId === record.id;
+                    
                     html += `
                         <div class="record-item ${interventionClass}" data-id="${record.id}">
                             <div class="mission-details">
                                 <span class="collaborator-name">${formatCollaboratorName(record.userName)}</span> - ${record.missionTypeLabel}
                                 <div class="problem-details">${record.missionDetail}</div>
-                                ${record.description ? `<div class="description">${record.description}</div>` : ''}
+                                ${isEditing ? 
+                                    `<textarea class="edit-description">${record.description || ''}</textarea>` : 
+                                    (record.description ? `<div class="description">${record.description}</div>` : '')
+                                }
                                 <small>${interventionText} • ${record.date}</small>
                             </div>
                             <div class="mission-actions">
@@ -591,6 +610,10 @@
                                     <div class="priority-value ${priorityClass}">${record.priority}</div>
                                     <button class="priority-btn" onclick="changePriority(${record.id}, 'down')">↓</button>
                                 </div>
+                                ${isEditing ? 
+                                    `<button class="edit-btn" onclick="saveEdit(${record.id})">Enregistrer</button>` : 
+                                    `<button class="edit-btn" onclick="startEdit(${record.id})">Modifier</button>`
+                                }
                                 <button class="archive-btn" onclick="archiveRecord(${record.id})">Archiver</button>
                             </div>
                         </div>
@@ -629,6 +652,26 @@
                     if (recordIndex !== -1) {
                         records[recordIndex].archived = true;
                         localStorage.setItem('missionRecords', JSON.stringify(records));
+                        renderRecords();
+                    }
+                }
+            };
+            
+            // Fonction pour démarrer l'édition
+            window.startEdit = function(id) {
+                currentlyEditingId = id;
+                renderRecords();
+            };
+            
+            // Fonction pour sauvegarder les modifications
+            window.saveEdit = function(id) {
+                const recordIndex = records.findIndex(r => r.id === id);
+                if (recordIndex !== -1) {
+                    const textarea = document.querySelector(`.record-item[data-id="${id}"] .edit-description`);
+                    if (textarea) {
+                        records[recordIndex].description = textarea.value;
+                        localStorage.setItem('missionRecords', JSON.stringify(records));
+                        currentlyEditingId = null;
                         renderRecords();
                     }
                 }
